@@ -1,0 +1,59 @@
+/* src/components/Room.css */
+
+/* Main container to center the card */
+.room-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* The main content card */
+.room-card {
+    background: #1e1e1e;
+    padding: 40px 50px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #2c2c2c;
+    color: #e0e0e0; /* Set text color for the card */
+}
+
+/* Room Code (h3) */
+.room-card h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #00bcd4; /* A bright accent color */
+    margin-top: 0;
+    margin-bottom: 30px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+/* Detail paragraphs (p) */
+.room-card p {
+    font-size: 1.1rem;
+    margin: 15px 0;
+    line-height: 1.6;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.room-card p:last-child {
+    border-bottom: none;
+}
+
+/* Style the actual data values */
+.room-card p span {
+    font-weight: 600;
+    background-color: #00bcd4;
+    color: #121212;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 1rem;
+}

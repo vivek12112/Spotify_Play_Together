@@ -1,0 +1,23 @@
+/* static/css/index.css */
+
+/* 1. Set up the basic document flow and font */
+html, body {
+    height: 100%; /* Make sure they can fill the screen */
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* 2. Make the React root elements fill their parent */
+#main, #app {
+    height: 100%;
+    width: 100%;
+}
+
+/* 3. Use Flexbox on your React app's root to center everything */
+#app {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center;    /* Center vertically */
+}

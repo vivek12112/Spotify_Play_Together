@@ -10,4 +10,5 @@ urlpatterns = [
 
     # Forwards all other URLs to the frontend app
     path('', include('frontend.urls')),
+    path('spotify/', include('spotify.urls')),
 ]

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Grid, Button, Typography } from "@mui/material";
 import CreateRoomPage from "./CreateRoomPage";
+import MusicPlayer from "./MusicPlayer"; // Import the modernized component
 
 export default function Room() {
   const [roomDetails, setRoomDetails] = useState({
@@ -11,16 +12,15 @@ export default function Room() {
     guestCanPause: false,
     isHost: false,
   });
+  const [song, setSong] = useState(null);
   const [spotifyAuthenticated, setSpotifyAuthenticated] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [loading, setLoading] = useState(true);
   const { roomCode } = useParams();
   const navigate = useNavigate();
 
-  // This function checks if the host is authenticated with Spotify.
-  // If not, it redirects them to the Spotify login page.
-  // useCallback is used to prevent this function from being recreated on every render.
   const authenticateSpotify = useCallback(async () => {
+
     try {
       const authResponse = await fetch("/spotify/is-authenticated");
       const authData = await authResponse.json();
@@ -29,7 +29,6 @@ export default function Room() {
       if (!authData.status) {
         const urlResponse = await fetch("/spotify/get-auth-url");
         const urlData = await urlResponse.json();
-        // Redirect the user to the Spotify authorization page
         window.location.replace(urlData.url);
       }
     } catch (error) {
@@ -40,11 +39,12 @@ export default function Room() {
   // Effect to fetch initial room details when the component mounts.
   useEffect(() => {
     const getRoomDetails = async () => {
+      // ... (This function remains unchanged)
       try {
         setLoading(true);
         const response = await fetch(`/api/get-room?code=${roomCode}`);
         if (!response.ok) {
-          navigate("/"); // Redirect home if room doesn't exist
+          navigate("/");
           return;
         }
         const data = await response.json();
@@ -63,6 +63,28 @@ export default function Room() {
     getRoomDetails();
   }, [roomCode, navigate]);
 
+  // Effect for polling the current song every second
+  useEffect(() => {
+    const getCurrentSong = async () => {
+      try {
+        const response = await fetch("/spotify/current-song");
+        if (response.ok) {
+          const data = await response.json();
+          setSong(data);
+        } else {
+          setSong(null); // Clear song data if nothing is playing
+        }
+      } catch (error) {
+        console.error("Error fetching song:", error);
+      }
+    };
+
+    const interval = setInterval(getCurrentSong, 1000);
+
+    // This is a cleanup function that React runs when the component unmounts
+    return () => clearInterval(interval);
+  }, []); // Empty array means this effect runs once on mount
+
   // Effect to handle Spotify authentication *after* we confirm the user is the host.
   useEffect(() => {
     if (roomDetails.isHost) {
@@ -71,6 +93,7 @@ export default function Room() {
   }, [roomDetails.isHost, authenticateSpotify]);
 
   const leaveButtonPressed = async () => {
+    // ... (This function remains unchanged)
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,15 +102,29 @@ export default function Room() {
     navigate("/");
   };
 
+  const playPauseSong = async () => {
+    const requestOptions = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    };
+    await fetch(`/spotify/${song.is_playing ? 'pause' : 'play'}`, requestOptions);
+  };
+
+  const skipSong = async () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    };
+    await fetch("/spotify/skip", requestOptions);
+  };
+
   const handleUpdateCallback = () => {
-    // Re-fetch details after an update. We can reuse the effect by just re-rendering.
-    // For simplicity, we can just call getRoomDetails again or let the state update trigger it.
-    // For now, let's just close the settings view.
+    // ... (This function remains unchanged)
     setShowSettings(false);
-    // You might want to re-trigger getRoomDetails here if settings affect display immediately.
   };
 
   const renderSettings = () => (
+    // ... (This JSX remains unchanged)
     <Grid container spacing={2} direction="column" alignItems="center">
       <Grid item xs={12}>
         <CreateRoomPage
@@ -111,23 +148,15 @@ export default function Room() {
   );
 
   const renderRoom = () => (
-    <Grid container spacing={2} direction="column" alignItems="center">
+    <Grid container spacing={3} alignItems="center" direction="column">
       <Grid item xs={12}>
         <Typography variant="h4" component="h4">
           Code: {roomCode}
         </Typography>
       </Grid>
-      {/* The rest of the UI remains unchanged */}
-      <Grid item xs={12}>
-        <Typography variant="h6">Votes to Skip: {roomDetails.votesToSkip}</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h6">
-          Guest Can Pause: {roomDetails.guestCanPause.toString()}
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h6">Host: {roomDetails.isHost.toString()}</Typography>
+      <Grid item xs={12} style={{ width: '100%', maxWidth: 400 }}>
+        {/* Pass song data and control functions to the MusicPlayer */}
+        <MusicPlayer {...song} onPlayPause={playPauseSong} onSkip={skipSong} />
       </Grid>
       {roomDetails.isHost && (
         <Grid item xs={12}>

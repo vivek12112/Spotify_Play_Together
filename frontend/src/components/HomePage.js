@@ -6,36 +6,44 @@ import { Link, Navigate } from "react-router-dom";
 
 export default function HomePage() {
     const [roomCode, setRoomCode] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // This hook runs once when the component loads to check if the user is in a room.
     useEffect(() => {
-        fetch("/api/user-in-room")
-            .then((response) => response.json())
-            .then((data) => {
+        const checkUserInRoom = async () => {
+            try {
+                const response = await fetch("/api/user-in-room");
+                const data = await response.json();
                 setRoomCode(data.code);
-            });
-    }, []); // The empty array ensures this effect runs only once.
+            } catch (error) {
+                console.error("Error checking room status:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        checkUserInRoom();
+    }, []);
 
-    // If a roomCode is found, this Navigate component tells the main router in App.js
-    // to change the URL, which will then render the <Room /> component.
+    if (loading) {
+        return <Typography>Loading...</Typography>;
+    }
+
     if (roomCode) {
         return <Navigate to={`/room/${roomCode}`} />;
     }
 
-    // Otherwise, if there's no room code, show the default home page.
-    return (    
-        <Grid container spacing={3}>
-            <Grid item xs={12} align="center">
+    return (
+        <Grid container spacing={3} sx={{ textAlign: 'center', mt: 4 }}>
+            <Grid xs={12}>
                 <Typography variant="h3" component="h3">
                     House Party
                 </Typography>
             </Grid>
-            <Grid item xs={12} align="center">
-                <ButtonGroup disableElevation variant="contained" color="primary">
-                    <Button color="primary" to="/join" component={Link}>
+            <Grid xs={12}>
+                <ButtonGroup disableElevation variant="contained">
+                    <Button color="primary" component={Link} to="/join">
                         Join a Room
                     </Button>
-                    <Button color="secondary" to="/create" component={Link}>
+                    <Button color="secondary" component={Link} to="/create">
                         Create a Room
                     </Button>
                 </ButtonGroup>

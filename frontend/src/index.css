@@ -1,0 +1,27 @@
+body {
+  /* Define the animation */
+  animation: gradientAnimation 15s ease infinite;
+  
+  /* UPDATED: Softer, pastel-like gradient colors */
+  background: linear-gradient(-45deg, #a0c4ff, #bdb2ff, #ffafbd, #ffc3a0);
+  background-size: 400% 400%;
+
+  /* Ensure the background covers the whole page */
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  height: 100vh;
+}
+
+/* This animation rule does not need to change */
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
